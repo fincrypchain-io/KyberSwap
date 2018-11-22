@@ -12,7 +12,7 @@ import { isUserEurope } from "../../utils/common";
 
 export default class TermAndServices extends React.Component {
   render() {
-    let termAndConditionUrl = "https://files.kyber.network/tac.pdf";
+    let termAndConditionUrl = "https://files.kyber.network/tac.html";
 
     if (isUserEurope()) {
       termAndConditionUrl = "https://files.kyber.network/tac-eu.pdf";
