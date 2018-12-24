@@ -9,9 +9,14 @@ import {
   ImportByPromoCode
 } from "../../containers/ImportAccount";
 
+import * as wallets from "../../containers/Wallets"
+
+
 const ImportAccountView = (props) => {
   var isOnMobile = props.onMobile.isIOS || props.onMobile.isAndroid;
 
+  
+  
   return (
     <div className="import-account">
       <div className="import-account__choose-wallet-container container">
@@ -26,7 +31,8 @@ const ImportAccountView = (props) => {
 
           {!isOnMobile &&
           <div className="import-account__item">
-            <ImportKeystore/>
+            {/* <ImportKeystore/> */}
+            {<wallets.keystore.components.ImportAccount />}
           </div>
           }
 

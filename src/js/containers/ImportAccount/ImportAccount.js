@@ -13,6 +13,8 @@ import BLOCKCHAIN_INFO from "../../../../env"
 import * as web3Package from "../../services/web3"
 import {isMobile} from '../../utils/common'
 
+//import * as wallets from "../Wallets"
+
 @connect((store, props) => {
   var tokens = store.tokens.tokens
   var supportTokens = []
@@ -64,6 +66,10 @@ export default class ImportAccount extends React.Component {
   }
 
   render() {
+    // var walletInstance = wallets.getInstanceWallet("keystore")
+    // console.log("abcxyz")
+    // console.log(walletInstance)
+    // console.log(walletInstance.components.ImportAccount)
     return (
       <ImportAccountView
         errorModal={<ErrorModal/>}
