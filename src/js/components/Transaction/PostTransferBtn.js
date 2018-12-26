@@ -19,6 +19,13 @@ const PostTransferBtn = (props) => {
       </div>
 
       {props.modalPassphrase}
+      
+      {props.isProcess && (
+        <props.walletInstance.components.ProcessTransfer endProcess={props.endProcess} 
+        formParams= {props.formParams} 
+        runAfterBroadcastTx={props.runAfterBroadcastTx}
+        doTxFail={props.doTxFail}/>
+      )}
 
       <PendingOverlay isEnable={props.isConfirming} />
     </div>

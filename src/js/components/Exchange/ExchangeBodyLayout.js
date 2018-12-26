@@ -6,7 +6,7 @@ import constants from "../../services/constants"
 import ReactTooltip from 'react-tooltip'
 import { filterInputNumber } from "../../utils/validators";
 import { ImportAccount } from "../../containers/ImportAccount";
-import { PostExchangeWithKey } from "../../containers/Exchange";
+import { PostExchange } from "../../containers/Exchange";
 import BLOCKCHAIN_INFO from "../../../../env";
 import { RateBetweenToken } from "../../containers/Exchange";
 import * as converters from "../../utils/converter";
@@ -281,7 +281,7 @@ const ExchangeBodyLayout = (props) => {
                 <div className="exchange-account__adv-config">{props.advanceLayout}</div>
               </div>
 
-              <PostExchangeWithKey isChangingWallet={props.isChangingWallet}/>
+              <PostExchange isChangingWallet={props.isChangingWallet}/>
             </div>
           </div>
         )}

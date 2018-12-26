@@ -164,14 +164,12 @@ const transfer = (state = initState, action) => {
       newState.step = 2
       newState.bcError = ""
       newState.broadcasting = true
-      newState.balanceData = {
-        tokenName: action.payload.balanceData.name,
-        tokenDecimal: action.payload.balanceData.decimals,
-        tokenSymbol: action.payload.balanceData.tokenSymbol,
-        amount: action.payload.balanceData.amount,
-        // prev: action.payload.balanceData.balance,
-        // next: 0
-      }
+      // newState.balanceData = {
+      //   tokenName: action.payload.balanceData.name,
+      //   tokenDecimal: action.payload.balanceData.decimals,
+      //   tokenSymbol: action.payload.balanceData.tokenSymbol,
+      //   amount: action.payload.balanceData.amount,
+      // }
       return newState
     }
     case "TRANSFER.THROW_ERROR_SIGN_TRANSACTION": {

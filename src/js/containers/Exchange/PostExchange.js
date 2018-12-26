@@ -3,8 +3,11 @@ import { connect } from "react-redux"
 import ReactTooltip from 'react-tooltip'
 import * as validators from "../../utils/validators"
 import * as converters from "../../utils/converter"
+
 import * as exchangeActions from "../../actions/exchangeActions"
 import * as utilActions from "../../actions/utilActions"
+import { updateAccount, incManualNonceAccount } from '../../actions/accountActions'
+
 import { Modal } from "../../components/CommonElement"
 import { TermAndServices } from "../../containers/CommonElements"
 import { PassphraseModal, ConfirmTransferModal, ApproveModal } from "../../components/Transaction"
@@ -12,6 +15,10 @@ import { PostExchangeBtn } from "../../components/Exchange"
 import { getTranslate } from 'react-localize-redux';
 import * as analytics from "../../utils/analytics";
 import { getAssetUrl, isUserEurope, getParameterByName } from "../../utils/common";
+
+import BLOCKCHAIN_INFO from "../../../../env"
+
+import * as wallets from "../Wallets"
 
 @connect((store, props) => {
   var sourceTokenSymbol = store.exchange.sourceTokenSymbol
@@ -42,6 +49,13 @@ import { getAssetUrl, isUserEurope, getParameterByName } from "../../utils/commo
     destIcon = destTokenSymbol + '.svg';
   }
 
+  var walletInstance 
+  switch(store.account.account.type){
+    case "keystore":
+      walletInstance = wallets.keystore
+      break
+  }
+
   return {
     form: {
       ...store.exchange, sourceBalance, sourceDecimal, destBalance, destDecimal,
@@ -53,14 +67,23 @@ import { getAssetUrl, isUserEurope, getParameterByName } from "../../utils/commo
     tokens: store.tokens,
     keyService: props.keyService,
     translate: getTranslate(store.locale),
+    walletInstance,
+    global: store.global
   }
 })
 
 export default class PostExchange extends React.Component {
   constructor() {
     super()
-    this.state = { form: {} }
+    this.state = { form: {}, isProcess: false }
   }
+
+  endProcess = () => {
+    this.setState({
+      isProcess: false
+    })
+  }
+
   clickExchange = () => {
     analytics.trackClickSwapButton()
     if (this.props.account === false) {
@@ -92,30 +115,35 @@ export default class PostExchange extends React.Component {
           return this.props.dispatch(utilActions.openInfoModal(titleModal, contentModal))
         }
 
-        this.props.dispatch(exchangeActions.setSnapshot(this.props.form))
-        this.props.dispatch(exchangeActions.updateRateSnapshot(this.props.ethereum))
 
-        switch (this.props.account.type) {
-          case "keystore":
-            this.props.dispatch(exchangeActions.fetchGasSnapshot())
-            this.props.dispatch(exchangeActions.openPassphrase())
-            break
-          case "privateKey":
-          case "promo":
-            this.props.dispatch(exchangeActions.fetchGasSnapshot())
-            this.props.dispatch(exchangeActions.showConfirm())
-            break
-          case "trezor":
-          case "ledger":
-          case "metamask":
-            if (this.props.form.sourceTokenSymbol === "ETH") {
-              this.props.dispatch(exchangeActions.fetchGasSnapshot())
-              this.props.dispatch(exchangeActions.showConfirm())
-            } else {
-              this.checkTokenBalanceOfColdWallet()
-            }
-            break
-        }
+      this.setState({
+        isProcess: true
+      })
+
+        // this.props.dispatch(exchangeActions.setSnapshot(this.props.form))
+        // this.props.dispatch(exchangeActions.updateRateSnapshot(this.props.ethereum))
+
+        // switch (this.props.account.type) {
+        //   case "keystore":
+        //     this.props.dispatch(exchangeActions.fetchGasSnapshot())
+        //     this.props.dispatch(exchangeActions.openPassphrase())
+        //     break
+        //   case "privateKey":
+        //   case "promo":
+        //     this.props.dispatch(exchangeActions.fetchGasSnapshot())
+        //     this.props.dispatch(exchangeActions.showConfirm())
+        //     break
+        //   case "trezor":
+        //   case "ledger":
+        //   case "metamask":
+        //     if (this.props.form.sourceTokenSymbol === "ETH") {
+        //       this.props.dispatch(exchangeActions.fetchGasSnapshot())
+        //       this.props.dispatch(exchangeActions.showConfirm())
+        //     } else {
+        //       this.checkTokenBalanceOfColdWallet()
+        //     }
+        //     break
+        // }
       }
     }
   }
@@ -208,7 +236,6 @@ export default class PostExchange extends React.Component {
       return (
         <div className="confirm-exchange-modal">
           <div className="modal-title message">
-            {/* {this.props.translate("transaction.about_to_swap") || "You are about to swap"} */}
             <div>{this.props.translate("transaction.your_wallet") || "Your Wallet"}</div>
             <div>{this.props.account.address}</div>
           </div>
@@ -263,41 +290,11 @@ export default class PostExchange extends React.Component {
           </div>
           <div className="amount">
             <div className="amount-item amount-left">
-              {/* <div className="grid-x">
-                <div className="cell medium-3 small-12 amount-icon">
-                  <img src={getAssetUrl(`tokens/${sourceIcon}`)} />
-                </div>
-                <div className="cell medium-9 small-12">
-                  <div className="amount-detail">
-                    <span>
-                      {sourceAmount.slice(0, 7)}{sourceAmount.length > 7 ? '...' : ''}
-                    </span>
-                    <span>
-                      {sourceTokenSymbol}
-                    </span>
-                  </div>
-                </div>
-              </div> */}
               <div className={"rc-label"}>From</div>
               <div className={"rc-info"}>{sourceAmount} {sourceTokenSymbol}</div>
             </div>
             <div className="space"><img src={require("../../../assets/img/exchange/arrow-right-orange.svg")} /></div>
             <div className="amount-item amount-right">
-                {/* <div className="grid-x">
-                  <div className="cell medium-3 small-12 amount-icon">
-                    <img src={getAssetUrl(`tokens/${destIcon}`)} />
-                  </div>
-                  <div className="cell medium-9 small-12">
-                    <div className="amount-detail">
-                      <span>
-                        {destAmount.slice(0, 7)}{destAmount.length > 7 ? '...' : ''}
-                      </span>
-                      <span>
-                        {destTokenSymbol}
-                      </span>
-                    </div>
-                  </div>
-                </div> */}
                 <div>
                   <div className={"rc-label"}>To</div>
                   <div className={"rc-info"}>
@@ -457,6 +454,37 @@ export default class PostExchange extends React.Component {
       throwOnFailure, nonce, gas, gas_approve, gasPrice, balanceData, sourceTokenSymbol, blockNo
     }
   }
+
+  doTxFail = (error) => {
+    if (!error){      
+      var link = BLOCKCHAIN_INFO.ethScanUrl + "address/" + this.props.account.address
+      error = this.props.translate("error.broadcast_tx", {link: link}) || "Potentially Failed! We likely couldn't broadcast the transaction to the blockchain. Please check on Etherscan to verify."
+    }
+    this.props.dispatch(exchangeActions.setBroadcastError(error))
+    this.props.dispatch(updateAccount(this.props.ethereum, this.props.account))
+  }
+
+  runAfterBroadcastTx = (hash) => {
+
+    //track complete trade
+    analytics.trackCoinTransfer(this.props.form.tokenSymbol)
+    analytics.completeTrade(hash, "kyber", "transfer")
+  
+
+    this.props.dispatch(incManualNonceAccount(this.props.account.address))
+    this.props.dispatch(updateAccount(this.props.ethereum, this.props.account))
+    this.props.dispatch(addTx(hash))
+    this.props.dispatch(transferActions.doTransactionComplete(hash))
+    this.props.dispatch(transferActions.finishTransfer())
+    
+    try{      
+      var notiService = this.props.global.notiService
+      notiService.callFunc("setNewTx",{hash: hash})
+    }catch(e){
+      console.log(e)
+    }
+  }
+
   checkTokenBalanceOfColdWallet = () => {
     const password = ""
     const params = this.formParams()
@@ -642,6 +670,13 @@ export default class PostExchange extends React.Component {
         isApproving={this.props.form.isApproving}
         translate={this.props.translate}
         isChangingWallet={this.props.isChangingWallet}
+
+        walletInstance = {this.props.walletInstance}
+        isProcess = {this.state.isProcess}
+        endProcess = {this.endProcess}
+        formParams = {this.formParamOfSnapshot()}
+        runAfterBroadcastTx = {this.runAfterBroadcastTx}
+        doTxFail= {this.doTxFail}
       />
     )
   }

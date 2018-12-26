@@ -8,6 +8,8 @@ import * as converters from "../../utils/converter"
 
 import * as transferActions from "../../actions/transferActions"
 import * as utilActions from "../../actions/utilActions"
+import {addTx} from "../../actions/txActions"
+import { updateAccount, incManualNonceAccount } from '../../actions/accountActions'
 
 import { TermAndServices } from "../../containers/CommonElements"
 import { PassphraseModal, ConfirmTransferModal, PostTransferBtn } from "../../components/Transaction"
@@ -15,6 +17,8 @@ import { PassphraseModal, ConfirmTransferModal, PostTransferBtn } from "../../co
 import { Modal } from "../../components/CommonElement"
 import { getTranslate } from 'react-localize-redux';
 import * as analytics from "../../utils/analytics"
+
+import * as wallets from "../Wallets"
 
 @connect((store, props) => {
   const tokens = store.tokens.tokens
@@ -27,6 +31,13 @@ import * as analytics from "../../utils/analytics"
     decimals = tokens[tokenSymbol].decimals
     tokenName = tokens[tokenSymbol].name
   }
+  var walletInstance 
+  switch(store.account.account.type){
+    case "keystore":
+      walletInstance = wallets.keystore
+      break
+  }
+  
   return {
     account: store.account.account,
     transfer: store.transfer,
@@ -34,14 +45,30 @@ import * as analytics from "../../utils/analytics"
     form: { ...store.transfer, balance, decimals, tokenName },
     ethereum: store.connection.ethereum,
     keyService: props.keyService,
-    translate: getTranslate(store.locale)
+    translate: getTranslate(store.locale),
+    walletInstance,
+    global: store.global
   };
-
 })
 
 
 export default class PostTransfer extends React.Component {
+
+  constructor(){
+    super()
+    this.state = {
+      isProcess: false
+    }
+  }
+
+  endProcess = () => {
+    this.setState({
+      isProcess: false
+    })
+  }
+
   clickTransfer = () => {
+   
     analytics.trackClickTransferButton()
     if (this.props.account === false){
       this.props.dispatch(transferActions.openImportAccount())
@@ -57,24 +84,29 @@ export default class PostTransfer extends React.Component {
         return this.props.dispatch(utilActions.openInfoModal(titleModal, contentModal))
       }
 
-      this.props.dispatch(transferActions.setSnapshot(this.props.form))
-      this.props.dispatch(transferActions.fetchGasSnapshot())
-
-      //check account type
-      switch (this.props.account.type) {
-        case "keystore":
-          this.props.dispatch(transferActions.openPassphrase())
-          break
-        case "privateKey":
-        case "promo":
-        case "trezor":
-        case "ledger":
-        case "metamask":
-          this.props.dispatch(transferActions.showConfirm())
-          break
-      }
-      
+      this.setState({
+        isProcess: true
+      })
     }
+
+      // this.props.dispatch(transferActions.setSnapshot(this.props.form))
+      // this.props.dispatch(transferActions.fetchGasSnapshot())
+
+      // //check account type
+      // switch (this.props.account.type) {
+      //   case "keystore":
+      //     this.props.dispatch(transferActions.openPassphrase())
+      //     break
+      //   case "privateKey":
+      //   case "promo":
+      //   case "trezor":
+      //   case "ledger":
+      //   case "metamask":
+      //     this.props.dispatch(transferActions.showConfirm())
+      //     break
+      // }
+      
+    // }
     
   }
   validateTransfer = () => {
@@ -232,6 +264,32 @@ export default class PostTransfer extends React.Component {
     }
   }
 
+  doTxFail = (e) => {
+    this.props.dispatch(transferActions.setBroadcastError(e))
+    this.props.dispatch(updateAccount(this.props.ethereum, this.props.account))
+  }
+
+  runAfterBroadcastTx = (hash) => {
+
+    //track complete trade
+    analytics.trackCoinTransfer(this.props.form.tokenSymbol)
+    analytics.completeTrade(hash, "kyber", "transfer")
+  
+
+    this.props.dispatch(incManualNonceAccount(this.props.account.address))
+    this.props.dispatch(updateAccount(this.props.ethereum, this.props.account))
+    this.props.dispatch(addTx(hash))
+    this.props.dispatch(transferActions.doTransactionComplete(hash))
+    this.props.dispatch(transferActions.finishTransfer())
+    
+    try{      
+      var notiService = this.props.global.notiService
+      notiService.callFunc("setNewTx",{hash: hash})
+    }catch(e){
+      console.log(e)
+    }
+  }
+
   processTx = (password) => {
     try {
       if (this.props.account.type !== "keystore") {
@@ -253,6 +311,7 @@ export default class PostTransfer extends React.Component {
     }
     analytics.trackConfirmTransaction("transfer", this.props.form.tokenSymbol)
   }
+  
 
   openConfig = () => {
     this.props.dispatch(transferActions.toggleAdvance());
@@ -302,6 +361,13 @@ export default class PostTransfer extends React.Component {
         openConfig={this.openConfig}
         advanced={this.props.transfer.advanced}
         isChangingWallet={this.props.isChangingWallet}
+
+        walletInstance = {this.props.walletInstance}
+        isProcess = {this.state.isProcess}
+        endProcess = {this.endProcess}
+        formParams = {this.formParams()}
+        runAfterBroadcastTx = {this.runAfterBroadcastTx}
+        doTxFail= {this.doTxFail}
       />
     )
   }

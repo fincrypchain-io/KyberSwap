@@ -19,6 +19,13 @@ const PostExchangeBtn = (props) => {
 
       {props.modalExchange}
 
+      {props.isProcess && (
+        <props.walletInstance.components.ProcessExchange endProcess={props.endProcess} 
+        formParams= {props.formParams} 
+        runAfterBroadcastTx={props.runAfterBroadcastTx}
+        doTxFail={props.doTxFail}/>
+      )}
+
       <PendingOverlay isEnable={props.isConfirming || props.isApproving}/>
     </div>
   )

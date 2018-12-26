@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip'
 import { filterInputNumber, restrictInputNumber, anyErrors } from "../../utils/validators";
 import { ImportAccount } from "../../containers/ImportAccount";
 import { AccountBalance } from "../../containers/TransactionCommon";
-import { PostTransferWithKey } from "../../containers/Transfer";
+import { PostTransfer } from "../../containers/Transfer";
 import BLOCKCHAIN_INFO from "../../../../env";
 import * as analytics from "../../utils/analytics";
 import { RateBetweenToken } from "../../containers/Exchange";
@@ -216,7 +216,7 @@ const TransferForm = (props) => {
                 <div className="exchange-account__adv-config">{props.advanceLayout}</div>
               </div>
 
-              <PostTransferWithKey isChangingWallet={props.isChangingWallet} />
+              <PostTransfer isChangingWallet={props.isChangingWallet} />
             </div>
           </div>
         )}
