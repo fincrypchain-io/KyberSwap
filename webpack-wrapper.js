@@ -40,7 +40,7 @@ var getConfig = env => {
         }),
         new MiniCssExtractPlugin({
             filename: "[name].css",
-        }),   
+        }),
         new CleanPlugin([outputPath + '/app.*', outputPath + '/libary.*'])
     ];
     return {
@@ -132,11 +132,11 @@ async function getTokenApi(network) {
         })
             .then((result) => {
                 if (result.success) {
-                    var tokens = {}
-                    result.data.map(val => {
-                        tokens[val.address] = val
-                    })
-                    resolve(tokens)
+                    // var tokens = []
+                    // result.data.map(val => {
+                    //     tokens[val.address] = val
+                    // })
+                    resolve(result.data)
                 }
             }).catch((err) => {
                 console.log(err)
@@ -162,33 +162,33 @@ async function saveBackupTokens(chain) {
     fs.writeFileSync(file, JSON.stringify(obj, null, 4));
 }
 
-async function renderLanguage(){
+async function renderLanguage() {
     var yaml = require('yamljs');
     const railsPath = '../config/locales/views/'
     const langPath = './lang/'
 
-    var processFile = function(fileName, callback){
-    try {
-        var json = yaml.parse(
-        fs.readFileSync(
-            railsPath + fileName
-        , 'utf8'));
-        var rawName = fileName.split('.')[0]
-        fs.writeFile(langPath + rawName + '.json', JSON.stringify(json[rawName].kyber_swap, null, 2), 'utf8', callback);
-    } catch (e) {
-        console.log(e);
-    }
+    var processFile = function (fileName, callback) {
+        try {
+            var json = yaml.parse(
+                fs.readFileSync(
+                    railsPath + fileName
+                    , 'utf8'));
+            var rawName = fileName.split('.')[0]
+            fs.writeFile(langPath + rawName + '.json', JSON.stringify(json[rawName].kyber_swap, null, 2), 'utf8', callback);
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     try {
-    var list = fs.readdirSync(railsPath)
-    list.forEach(file => {
-        processFile(file, (err) => {
-        if(!err) console.log(`process file ${file} without error`)
+        var list = fs.readdirSync(railsPath)
+        list.forEach(file => {
+            processFile(file, (err) => {
+                if (!err) console.log(`process file ${file} without error`)
+            })
         })
-    })
     } catch (error) {
-    
+
     }
 
 }
@@ -199,7 +199,7 @@ async function main() {
     var enviroment = process.env.NODE_ENV
     await saveBackupTokens(enviroment)
 
-    var webpackConfig = await getConfig(enviroment)  
+    var webpackConfig = await getConfig(enviroment)
 
     var compiler = await webpack(webpackConfig)
     compiler.run(function (err, stats) {

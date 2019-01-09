@@ -4,14 +4,18 @@ import { roundingNumber } from "../../utils/converter"
 import * as actions from "../../actions/exchangeActions"
 import { getTranslate } from 'react-localize-redux';
 import * as converter from '../../utils/converter'
+import * as constants from "../../services/constants"
 
 @connect((store, props) => {
-  var rateEthUsd = store.tokens.tokens.ETH.rateUSD
-  var sourceToken = props.exchangeRate.sourceToken
+  // var rateEthUsd = store.tokens.tokens.ETH.rateUSD
+  // var sourceToken = props.exchangeRate.sourceToken
   var tokens = store.tokens.tokens
+  var rateEthUsd = tokens[constants.ETHER_ADDRESS].rateUSD
+  var exchange = store.exchange
+  var sourceToken = exchange.sourceToken
   var rateUSD = 0
 
-  if (sourceToken === "ETH") {
+  if (sourceToken === constants.ETHER_ADDRESS) {
     rateUSD = tokens[sourceToken].rateUSD    
   } else {
     var rateTokenETH = converter.toT(tokens[sourceToken].rate, 18)

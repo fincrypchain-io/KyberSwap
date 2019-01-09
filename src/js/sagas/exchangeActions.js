@@ -159,8 +159,8 @@ function isApproveTxPending() {
   //check have approve tx
   const state = store.getState()
   const tokens = state.tokens.tokens
-  const sourceTokenSymbol = state.exchange.sourceTokenSymbol
-  return !!tokens[sourceTokenSymbol].approveTx
+  const sourceToken = state.exchange.sourceToken
+  return !!tokens[sourceToken].approveTx
 }
 
 export function* checkTokenBalanceOfColdWallet(action) {
@@ -274,7 +274,7 @@ export function* processApproveByColdWallet(action) {
   try {
     hashApprove = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApprove)
     console.log(hashApprove)
-    yield put(actions.setApproveTx(hashApprove, sourceTokenSymbol))
+    yield put(actions.setApproveTx(hashApprove, sourceToken))
 
     //increase nonce 
     yield put(incManualNonceAccount(account.address))
@@ -311,7 +311,7 @@ export function* processApproveByColdWalletZero(action) {
   try {
     hashApprove = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApprove)
     console.log(hashApprove)
-    yield put(actions.setApproveTxZero(hashApprove, sourceTokenSymbol))
+    yield put(actions.setApproveTxZero(hashApprove, sourceToken))
 
     //increase nonce 
     yield put(incManualNonceAccount(account.address))
@@ -332,7 +332,7 @@ export function* processApproveByMetamask(action) {
     const hashApprove = yield call(keyService.callSignTransaction, "getAppoveToken", ethereum, sourceToken, sourceAmount, nonce, gas, gasPrice,
       keystring, password, accountType, account.address)
 
-    yield put(actions.setApproveTx(hashApprove, sourceTokenSymbol))
+    yield put(actions.setApproveTx(hashApprove, sourceToken))
     console.log(hashApprove)
     //return
     //increase nonce 
@@ -353,7 +353,7 @@ export function* processApproveByMetamaskZero(action) {
     const hashApprove = yield call(keyService.callSignTransaction, "getAppoveTokenZero", ethereum, sourceToken, sourceAmount, nonce, gas, gasPrice,
       keystring, password, accountType, account.address)
 
-    yield put(actions.setApproveTxZero(hashApprove, sourceTokenSymbol))
+    yield put(actions.setApproveTxZero(hashApprove, sourceToken))
     console.log(hashApprove)
     //return
     //increase nonce 
@@ -545,24 +545,24 @@ function* checkStep(remain, sourceAmount) {
 
   const state = store.getState()
   const tokens = state.tokens.tokens
-  const sourceTokenSymbol = state.exchange.sourceTokenSymbol
+  const sourceToken = state.exchange.sourceToken
 
-  if (remain != 0 && !!tokens[sourceTokenSymbol].approveZeroTx && !!tokens[sourceTokenSymbol].approveTx) {
+  if (remain != 0 && !!tokens[sourceToken].approveZeroTx && !!tokens[sourceToken].approveTx) {
     return 3
   }
 
-  if (remain != 0 && !!tokens[sourceTokenSymbol].approveZeroTx && !tokens[sourceTokenSymbol].approveTx) {
+  if (remain != 0 && !!tokens[sourceToken].approveZeroTx && !tokens[sourceToken].approveTx) {
     return 2
   }
 
-  if (remain != 0 && !tokens[sourceTokenSymbol].approveZeroTx) {
+  if (remain != 0 && !tokens[sourceToken].approveZeroTx) {
     return 1
   }
 
-  if (remain == 0 && !!tokens[sourceTokenSymbol].approveTx) {
+  if (remain == 0 && !!tokens[sourceToken].approveTx) {
     return 3
   }
-  if (remain == 0 && !tokens[sourceTokenSymbol].approveTx) {
+  if (remain == 0 && !tokens[sourceToken].approveTx) {
     return 2
   }
 }
@@ -624,7 +624,7 @@ function* exchangeTokentoETHKeystore(action) {
         try {
           var hashApprove = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApprove)
 
-          yield put(actions.setApproveTx(hashApprove, sourceTokenSymbol))
+          yield put(actions.setApproveTx(hashApprove, sourceToken))
           console.log("approve: " + hashApprove)
           //increase nonce 
           yield put(incManualNonceAccount(account.address))
@@ -664,7 +664,7 @@ function* exchangeTokentoETHKeystore(action) {
         //try {
         var hashApproveZero = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApproveZero)
 
-        yield put(actions.setApproveTxZero(hashApproveZero, sourceTokenSymbol))
+        yield put(actions.setApproveTxZero(hashApproveZero, sourceToken))
         console.log("approve_zero: " + hashApproveZero)
         //increase nonce 
         yield put(incManualNonceAccount(account.address))
@@ -675,7 +675,7 @@ function* exchangeTokentoETHKeystore(action) {
           keystring, password, type, address)
         var hashApprove = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApprove)
 
-        yield put(actions.setApproveTx(hashApprove, sourceTokenSymbol))
+        yield put(actions.setApproveTx(hashApprove, sourceToken))
         console.log("approve: " + hashApprove)
         //increase nonce 
         yield put(incManualNonceAccount(account.address))
@@ -749,7 +749,7 @@ export function* exchangeTokentoETHPrivateKey(action) {
           }
 
           var hashApprove = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApprove)
-          yield put(actions.setApproveTx(hashApprove, sourceTokenSymbol))
+          yield put(actions.setApproveTx(hashApprove, sourceToken))
           console.log(hashApprove)
           //increase nonce 
           yield put(incManualNonceAccount(account.address))
@@ -784,7 +784,7 @@ export function* exchangeTokentoETHPrivateKey(action) {
           //yield put(actions.prePareBroadcast(balanceData))
           var hashApproveZero
           var hashApproveZero = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApproveZero)
-          yield put(actions.setApproveTx(hashApproveZero, sourceTokenSymbol))
+          yield put(actions.setApproveTx(hashApproveZero, sourceToken))
           console.log(hashApproveZero)
           yield put(incManualNonceAccount(account.address))
           nonce++
@@ -793,7 +793,7 @@ export function* exchangeTokentoETHPrivateKey(action) {
             keystring, password, type, address)
           var hashApprove
           var hashApprove = yield call([ethereum, ethereum.callMultiNode], "sendRawTransaction", rawApprove)
-          yield put(actions.setApproveTx(hashApprove, sourceTokenSymbol))
+          yield put(actions.setApproveTx(hashApprove, sourceToken))
           console.log(hashApprove)
           yield put(incManualNonceAccount(account.address))
           nonce++
@@ -906,29 +906,29 @@ function* getRate(ethereum, source, dest, sourceAmount) {
 
 
 
-function* getSourceAmount(sourceTokenSymbol, sourceAmount) {
+function* getSourceAmount(sourceToken, sourceAmount) {
   var state = store.getState()
   var tokens = state.tokens.tokens
 
   var sourceAmountHex = "0x0"
-  if (tokens[sourceTokenSymbol]) {
-    var decimals = tokens[sourceTokenSymbol].decimals
-    var rateSell = tokens[sourceTokenSymbol].rate
-    sourceAmountHex = converter.calculateMinSource(sourceTokenSymbol, sourceAmount, decimals, rateSell)
+  if (tokens[sourceToken]) {
+    var decimals = tokens[sourceToken].decimals
+    var rateSell = tokens[sourceToken].rate
+    sourceAmountHex = converter.calculateMinSource(sourceToken, sourceAmount, decimals, rateSell)
   } else {
     sourceAmountHex = converter.stringToHex(sourceAmount, 18)
   }
   return sourceAmountHex
 }
 
-function* getSourceAmountZero(sourceTokenSymbol) {
+function* getSourceAmountZero(sourceToken) {
   var state = store.getState()
   var tokens = state.tokens.tokens
   var sourceAmountHex = "0x0"
-  if (tokens[sourceTokenSymbol]) {
-    var decimals = tokens[sourceTokenSymbol].decimals
-    var rateSell = tokens[sourceTokenSymbol].rate
-    sourceAmountHex = converter.toHex(converter.getSourceAmountZero(sourceTokenSymbol, decimals, rateSell))
+  if (tokens[sourceToken]) {
+    var decimals = tokens[sourceToken].decimals
+    var rateSell = tokens[sourceToken].rate
+    sourceAmountHex = converter.toHex(converter.getSourceAmountZero(sourceToken, decimals, rateSell))
   }
   return sourceAmountHex
 }
@@ -937,8 +937,8 @@ function* updateRatePending(action) {
   const { ethereum, source, dest, sourceAmount, sourceTokenSymbol, isManual } = action.payload
   var state = store.getState()
   var translate = getTranslate(state.locale)
-  var sourceAmoutRefined = yield call(getSourceAmount, sourceTokenSymbol, sourceAmount)
-  var sourceAmoutZero = yield call(getSourceAmountZero, sourceTokenSymbol)
+  var sourceAmoutRefined = yield call(getSourceAmount, source, sourceAmount)
+  var sourceAmoutZero = yield call(getSourceAmountZero, source)
 
   if (isManual) {
     var rateRequest = yield call(common.handleRequest, getRate, ethereum, source, dest, sourceAmoutRefined)
@@ -1069,7 +1069,7 @@ function* fetchGas() {
   var exchange = state.exchange
   var gas = yield call(getMaxGasExchange)
   var gasApprove = 0
-  if (exchange.sourceTokenSymbol !== "ETH"){
+  if (exchange.sourceToken !== constants.ETHER_ADDRESS){
     gasApprove = yield call(getMaxGasApprove)
     gasApprove = gasApprove * 2
   }
@@ -1088,10 +1088,10 @@ function* estimateGas() {
     var state = store.getState()
     const exchange = state.exchange
 
-    const sourceTokenSymbol = exchange.sourceTokenSymbol
+    const sourceToken = exchange.sourceToken
     var gas = yield call(getMaxGasExchange)
     var gas_approve
-    if (sourceTokenSymbol === "ETH") {
+    if (sourceToken === constants.ETHER_ADDRESS) {
       gas_approve = 0
     } else {
       gas_approve = yield call(getMaxGasApprove)
@@ -1119,12 +1119,12 @@ function* estimateGasSnapshot() {
     var state = store.getState()
     const exchange = state.exchange
 
-    const sourceTokenSymbol = exchange.sourceTokenSymbol
+    const sourceToken = exchange.sourceToken
     var gas = yield call(getMaxGasExchange)
     console.log("gas_ne")
     console.log(gas)
     var gas_approve
-    if (sourceTokenSymbol === "ETH") {
+    if (sourceToken === constants.ETHER_ADDRESS) {
       gas_approve = 0
     } else {
       gas_approve = yield call(getMaxGasApprove)
@@ -1182,51 +1182,24 @@ function* getMaxGasExchange() {
   const exchange = state.exchange
   const tokens = state.tokens.tokens
 
-  var sourceTokenLimit = tokens[exchange.sourceTokenSymbol] ? tokens[exchange.sourceTokenSymbol].gasLimit : 0
-  var destTokenLimit = tokens[exchange.destTokenSymbol] ? tokens[exchange.destTokenSymbol].gasLimit : 0
+  var sourceTokenLimit = tokens[exchange.sourceToken] ? tokens[exchange.sourceToken].gasLimit : 0
+  var destTokenLimit = tokens[exchange.destToken] ? tokens[exchange.destToken].gasLimit : 0
 
   var sourceGasLimit = sourceTokenLimit ? parseInt(sourceTokenLimit) : exchange.max_gas
   var destGasLimit = destTokenLimit ? parseInt(destTokenLimit) : exchange.max_gas
 
-  // console.log("fee tx: ", sourceGasLimit + destGasLimit)
-
   return sourceGasLimit + destGasLimit
 
-  // if (exchange.sourceTokenSymbol === 'DGX'){
-  //   if (exchange.destTokenSymbol === 'ETH'){
-  //     return 750000
-  //   }else{
-  //     return (750000 + exchange.max_gas)
-  //   }
-  // }
-  // if (exchange.sourceTokenSymbol === 'ETH'){
-  //   if (exchange.destTokenSymbol === 'DGX'){
-  //     return 750000
-  //   }else{
-  //     return exchange.max_gas
-  //   }
-  // }
 
-  // if (exchange.sourceTokenSymbol !== 'ETH'){
-  //   if (exchange.destTokenSymbol === 'DGX'){
-  //     return 750000 + exchange.max_gas
-  //   }
-  //   if (exchange.destTokenSymbol === 'ETH'){
-  //     return exchange.max_gas
-  //   }
-  //   else{
-  //     return exchange.max_gas * 2
-  //   }
-  // }
 }
 
 function* getMaxGasApprove() {
   var state = store.getState()
   var tokens = state.tokens.tokens
   const exchange = state.exchange
-  var sourceSymbol = exchange.sourceTokenSymbol
-  if (tokens[sourceSymbol] && tokens[sourceSymbol].gasApprove) {
-    return tokens[sourceSymbol].gasApprove
+  var sourceToken = exchange.sourceToken
+  if (tokens[sourceToken] && tokens[sourceToken].gasApprove) {
+    return tokens[sourceToken].gasApprove
   } else {
     return exchange.max_gas_approve
   }
@@ -1248,12 +1221,12 @@ function* getGasConfirm() {
 
   var tokens = state.tokens.tokens
   var sourceDecimal = 18
-  var sourceTokenSymbol = exchange.sourceTokenSymbol
-  if (tokens[sourceTokenSymbol]) {
-    sourceDecimal = tokens[sourceTokenSymbol].decimals
+  var sourceToken = exchange.sourceToken
+  if (tokens[sourceToken]) {
+    sourceDecimal = tokens[sourceToken].decimals
   }
 
-  const sourceToken = exchange.sourceToken
+  // const sourceToken = exchange.sourceToken
   const sourceAmount = converter.stringToHex(exchange.sourceAmount, sourceDecimal)
   const destToken = exchange.destToken
   const maxDestAmount = converter.biggestNumber()
@@ -1267,7 +1240,7 @@ function* getGasConfirm() {
   var gas = 0
 
   var value = '0x0'
-  if (exchange.sourceTokenSymbol === 'ETH') {
+  if (exchange.sourceToken === constants.ETHER_ADDRESS) {
     value = sourceAmount
   }
 
@@ -1567,34 +1540,34 @@ function* verifyExchange() {
   const exchange = state.exchange
   const offeredRate = state.exchange.offeredRate
 
-  var sourceTokenSymbol = exchange.sourceTokenSymbol
+  var sourceToken = exchange.sourceToken
   var tokens = state.tokens.tokens
   var sourceBalance = 0
   var sourceDecimal = 18
   var sourceName = "Ether"
   var rateSourceToEth = 0
-  if (tokens[sourceTokenSymbol]) {
-    sourceBalance = tokens[sourceTokenSymbol].balance
-    sourceDecimal = tokens[sourceTokenSymbol].decimals
-    sourceName = tokens[sourceTokenSymbol].name
-    rateSourceToEth = tokens[sourceTokenSymbol].rate
+  if (tokens[sourceToken]) {
+    sourceBalance = tokens[sourceToken].balance
+    sourceDecimal = tokens[sourceToken].decimals
+    sourceName = tokens[sourceToken].name
+    rateSourceToEth = tokens[sourceToken].rate
   }
 
-  var destTokenSymbol = exchange.destTokenSymbol
+  var destToken = exchange.destToken
   var destBalance = 0
   var destDecimal = 18
   var destName = "Kybernetwork"
-  if (tokens[destTokenSymbol]) {
-    destBalance = tokens[destTokenSymbol].balance
-    destDecimal = tokens[destTokenSymbol].decimals
-    destName = tokens[destTokenSymbol].name
+  if (tokens[destToken]) {
+    destBalance = tokens[destToken].balance
+    destDecimal = tokens[destToken].decimals
+    destName = tokens[destToken].name
   }
 
   var sourceAmount = exchange.sourceAmount
 
   var validateAmount = validators.verifyAmount(sourceAmount,
     sourceBalance,
-    sourceTokenSymbol,
+    sourceToken,
     sourceDecimal,
     rateSourceToEth,
     destDecimal,
@@ -1636,7 +1609,7 @@ function* verifyExchange() {
   if (isNaN(sourceAmount) || sourceAmount === "") {
     sourceAmount = 0
   }
-  var validateWithFee = validators.verifyBalanceForTransaction(tokens['ETH'].balance, sourceTokenSymbol,
+  var validateWithFee = validators.verifyBalanceForTransaction(tokens[ETHER_ADDRESS].balance, sourceToken,
     sourceAmount, exchange.gas + exchange.gas_approve, exchange.gasPrice)
 
   if (validateWithFee) {

@@ -443,7 +443,7 @@ export default class ExchangeBody extends React.Component {
     var tokenSourceSelect = (
       <TokenSelector
         type="source"
-        focusItem={this.props.exchange.sourceTokenSymbol}
+        focusItem={this.props.exchange.sourceToken}
         listItem={this.props.tokens}
         chooseToken={this.chooseToken}
         isFixToken = {isFixedSourceToken}
@@ -453,7 +453,7 @@ export default class ExchangeBody extends React.Component {
     var tokenDestSelect = (
       <TokenSelector
         type="des"
-        focusItem={this.props.exchange.destTokenSymbol}
+        focusItem={this.props.exchange.destToken}
         listItem={tokenDest}
         chooseToken={this.chooseToken}
         isFixToken = {isFixedDestToken}

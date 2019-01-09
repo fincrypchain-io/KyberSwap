@@ -9,6 +9,7 @@ import {setIsChangingPath} from "../../actions/globalActions"
 import { clearSession } from "../../actions/globalActions"
 import {HeaderTransaction} from "../TransactionCommon"
 import * as analytics from "../../utils/analytics"
+import * as common from "../../utils/common"
 
 @connect((store, props) => {
   const account = store.account.account
@@ -37,17 +38,23 @@ export default class Exchange extends React.Component {
   }
 
   componentDidMount = () =>{
-    if ((this.props.params.source.toLowerCase() !== this.props.exchange.sourceTokenSymbol.toLowerCase()) ||
-      (this.props.params.dest.toLowerCase() !== this.props.exchange.destTokenSymbol.toLowerCase()) ){
+    // get last token 
+    var sourceSymbol = this.props.params.source.toLowerCase()
+    var sourceToken = common.getAddressFromSymbol(sourceSymbol, this.props.tokens)
+    var destSymbol = this.props.params.dest.toLowerCase()
+    var destToken = common.getAddressFromSymbol(destSymbol, this.props.tokens)
 
-      var sourceSymbol = this.props.params.source.toUpperCase()
-      var sourceAddress = this.props.tokens[sourceSymbol].address
+    if ((sourceToken.toLowerCase() !== this.props.exchange.sourceToken.toLowerCase()) ||
+      (destToken.toLowerCase() !== this.props.exchange.destToken.toLowerCase()) ){
 
-      var destSymbol = this.props.params.dest.toUpperCase()
-      var destAddress = this.props.tokens[destSymbol].address
+      sourceSymbol = this.props.params.source.toUpperCase()
+      sourceToken =  common.getAddressFromSymbol(sourceSymbol, this.props.tokens)
 
-      this.props.dispatch(exchangeActions.selectTokenAsync(sourceSymbol, sourceAddress, "source", this.props.ethereum))
-      this.props.dispatch(exchangeActions.selectTokenAsync(destSymbol, destAddress, "des", this.props.ethereum))
+      destSymbol = this.props.params.dest.toUpperCase()
+      destToken = common.getAddressFromSymbol(destSymbol, this.props.tokens)
+
+      this.props.dispatch(exchangeActions.selectTokenAsync(sourceSymbol, sourceToken, "source", this.props.ethereum))
+      this.props.dispatch(exchangeActions.selectTokenAsync(destSymbol, destToken, "des", this.props.ethereum))
     }
   }
 

@@ -9,6 +9,7 @@ import { default as _ } from 'underscore'
 import { clearSession, setIsChangingPath } from "../../actions/globalActions"
 import { ImportAccount } from "../ImportAccount"
 import {HeaderTransaction} from "../TransactionCommon"
+import * as common from "../../utils/common"
 
 @connect((store, props) => {
   const account = store.account.account
@@ -37,12 +38,15 @@ export default class Exchange extends React.Component {
 
 
   componentDidMount = () =>{
-    if (this.props.params.source.toLowerCase() !== this.props.transfer.tokenSymbol.toLowerCase()){
+    var sourceSymbol = this.props.params.source.toLowerCase()
+    var sourceToken = common.getAddressFromSymbol(sourceSymbol, this.props.tokens)
 
-      var sourceSymbol = this.props.params.source.toUpperCase()
-      var sourceAddress = this.props.tokens[sourceSymbol].address
+    if (sourceToken.toLowerCase() !== this.props.transfer.token.toLowerCase()){
 
-      this.props.dispatch(transferActions.selectToken(sourceSymbol, sourceAddress))
+      sourceSymbol = this.props.params.source.toUpperCase()
+      sourceToken =  common.getAddressFromSymbol(sourceSymbol, this.props.tokens)
+
+      this.props.dispatch(transferActions.selectToken(sourceSymbol, sourceToken))
     }
   }
 

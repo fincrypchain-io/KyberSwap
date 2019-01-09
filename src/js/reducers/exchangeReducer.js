@@ -571,9 +571,9 @@ const exchange = (state = initState, action) => {
       // resetState.gasPrice = newState.gasPrice
       resetState.gasPrice = gasPrice
       resetState.selectedGas = newState.selectedGas
-      // resetState.isEditGasPrice = newState.isEditGasPrice
-      resetState.isEditGasPrice = false
-      
+      resetState.isEditGasPrice = newState.isEditGasPrice
+      resetState.gasPriceSuggest = newState.gasPriceSuggest
+
       resetState.destToken = newState.destToken
       resetState.destTokenSymbol = newState.destTokenSymbol
 
@@ -585,10 +585,10 @@ const exchange = (state = initState, action) => {
       return newState;
     }
 
-    case "ACCOUNT.IMPORT_NEW_ACCOUNT_FULFILLED":{
-      // if(!action.payload.isOnMobile) newState.isBalanceActive = true
-      return newState
-    }
+    // case "ACCOUNT.IMPORT_NEW_ACCOUNT_FULFILLED":{
+    //   // if(!action.payload.isOnMobile) newState.isBalanceActive = true
+    //   return newState
+    // }
     case "EXCHANGE.SET_SELECTED_GAS_PRICE":{
       const { gasPrice, gasLevel } = action.payload
 

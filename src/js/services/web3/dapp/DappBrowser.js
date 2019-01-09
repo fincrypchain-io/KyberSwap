@@ -41,7 +41,6 @@ export default class DappBrowser {
       return new Promise((resolve, reject) => {
 
         this.web3.eth.getAccounts((error, result) => {
-          console.log(result)
           if (error || result.length === 0) {
             var error = new Error("Cannot get coinbase")
             reject(error)

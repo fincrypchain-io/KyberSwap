@@ -310,20 +310,9 @@ export default class EthereumService extends React.Component {
     var tokens = state.tokens.tokens
     var sourceDecimal = 18
     var sourceTokenSymbol = state.exchange.sourceTokenSymbol
-    if (tokens[sourceTokenSymbol]) {
-      sourceDecimal = tokens[sourceTokenSymbol].decimals
+    if (tokens[source]) {
+      sourceDecimal = tokens[source].decimals
     }
-
-//    var sourceAmountHex = stringToHex(sourceAmount, sourceDecimal)
-
-    // var destTokenSymbol = state.exchange.destTokenSymbol
-    // var rateInit = 0
-    // if (sourceTokenSymbol === 'ETH' && destTokenSymbol !== 'ETH') {
-    //   rateInit = tokens[destTokenSymbol].minRateEth
-    // }
-    // if (sourceTokenSymbol !== 'ETH' && destTokenSymbol === 'ETH') {
-    //   rateInit = tokens[sourceTokenSymbol].minRate
-    // }
 
     store.dispatch(updateRateExchange(ethereum, source, dest, sourceAmount, sourceTokenSymbol, isManual))
   }
@@ -337,11 +326,7 @@ export default class EthereumService extends React.Component {
   // }
 
   fetchGasprice = () => {
-    var state = store.getState()
-    var ethereum = state.connection.ethereum
-    var account = state.account.account;
-
-    store.dispatch(setGasPrice(ethereum, account))
+    store.dispatch(setGasPrice())
   }
 
   fetchMaxGasPrice = () => {

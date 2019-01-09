@@ -3,6 +3,7 @@ import constants from "../../constants"
 import * as ethUtil from 'ethereumjs-util'
 import BLOCKCHAIN_INFO from "../../../../../env"
 import abiDecoder from "abi-decoder"
+import * as converters from "../../../utils/converter"
 
 export default class BaseProvider {
 
@@ -220,8 +221,7 @@ export default class BaseProvider {
         if (!this.rpc.utils.isAddress(walletId)) {
             walletId = "0x" + Array(41).join("0")
         }
-        // var hint = this.rpc.utils.utf8ToHex("PERM");
-        var hint =  this.rpc.utils.utf8ToHex("PERM");
+        var hint = this.rpc.utils.utf8ToHex(constants.PERM_HINT)
         var data = this.networkContract.methods.tradeWithHint(
             sourceToken, sourceAmount, destToken, destAddress,
             maxDestAmount, minConversionRate, walletId, hint).encodeABI()
@@ -381,27 +381,28 @@ export default class BaseProvider {
     }
 
     getAllRates(tokensObj) {
-        var arrayTokenAddress = Object.keys(tokensObj).map((tokenName) => {
-            return tokensObj[tokenName].address
+        var arrayTokenAddress = Object.keys(tokensObj).map((tokenAddress) => {
+            return tokenAddress
         });
 
         var arrayEthAddress = Array(arrayTokenAddress.length).fill(constants.ETH.address)
 
-        var arrayQty = Array(arrayTokenAddress.length * 2).fill("0x0")
+        var mask = converters.maskNumber()
+        var arrayQty = Array(arrayTokenAddress.length * 2).fill(mask)
 
         return this.getAllRate(arrayTokenAddress.concat(arrayEthAddress), arrayEthAddress.concat(arrayTokenAddress), arrayQty).then((result) => {
             var returnData = []
-            Object.keys(tokensObj).map((tokenSymbol, i) => {
+            Object.keys(tokensObj).map((tokenAddress, i) => {
                 returnData.push({
-                    source: tokenSymbol,
-                    dest: "ETH",
+                    source: tokenAddress,
+                    dest: constants.ETHER_ADDRESS,
                     rate: result.expectedPrice[i],
                     minRate: result.slippagePrice[i]
                 })
 
                 returnData.push({
-                    source: "ETH",
-                    dest: tokenSymbol,
+                    source: constants.ETHER_ADDRESS,
+                    dest: tokenAddress,
                     rate: result.expectedPrice[i + arrayTokenAddress.length],
                     minRate: result.slippagePrice[i + arrayTokenAddress.length]
                 })
@@ -615,7 +616,12 @@ export default class BaseProvider {
     }
 
     getRateAtSpecificBlock(source, dest, srcAmount, blockno) {
-        var data = this.networkContract.methods.getExpectedRate(source, dest, srcAmount).encodeABI()
+        //special handle for official reserve
+        var mask = converters.maskNumber()
+        var srcAmountEnableFistBit = converters.sumOfTwoNumber(srcAmount,  mask)
+        srcAmountEnableFistBit = converters.toHex(srcAmountEnableFistBit)
+
+        var data = this.networkContract.methods.getExpectedRate(source, dest, srcAmountEnableFistBit).encodeABI()
 
         return new Promise((resolve, reject) => {
             this.rpc.eth.call({

@@ -19,7 +19,7 @@ const AccountBalanceLayout = (props) => {
       .map(token => {
         var balance = converts.toT(token.balance, token.decimals)
 
-        var tokenEpsilon = converts.caculateTokenEpsilon(token.rate, token.decimals, token.symbol)
+        var tokenEpsilon = converts.caculateTokenEpsilon(token.rate, token.decimals, token.address)
         var bigBalance = new BigNumber(token.balance)
         return (
           props.showZeroBalance || bigBalance.isGreaterThanOrEqualTo(tokenEpsilon) ?

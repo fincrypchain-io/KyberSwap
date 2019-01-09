@@ -262,7 +262,7 @@ export default class Transfer extends React.Component {
     var tokenTransferSelect = (
       <TokenSelector
         type="transfer"
-        focusItem={this.props.transfer.tokenSymbol}
+        focusItem={this.props.transfer.token}
         listItem={this.props.tokens}
         chooseToken={this.chooseToken}
         banToken={BLOCKCHAIN_INFO.promo_token}

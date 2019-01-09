@@ -58,14 +58,6 @@ export default class MarketTable extends React.Component {
       if ((window.innerHeight + window.scrollY) >= market.offsetHeight) {
         this.getMoreData()
       }
-      // var scrollTop   = window.scrollY,
-      //   elementOffset = market.offsetTop,
-      //   elementHeight = market.clientHeight,
-      //   windowH       = window.innerHeight,
-      //   distance      = (elementHeight + elementOffset - scrollTop - windowH);
-      //   if (distance <= 250) {
-      //     this.getMoreData()
-      //   }
     }
   }
 
@@ -78,18 +70,6 @@ export default class MarketTable extends React.Component {
   }
 
   drawChart = (props) => {
-    // var lineColor = ""
-    // var backgroundColor = ""
-    // if (props["original"]["change"] < 0) {
-    //   lineColor = "#F0506E"
-    //   backgroundColor = "#FEF4F6"
-    // } else if (props["original"]["change"] === 0) {
-    //   lineColor = "#767677"
-    //   backgroundColor = "#eee"
-    // } else {
-    //   lineColor = "#31CB9E"
-    //   backgroundColor = "#EDFBF6"
-    // }
     var lineColor = "#31CB9E"
     var backgroundColor = "#EDFBF6"
     var point = []

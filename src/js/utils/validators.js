@@ -21,7 +21,7 @@ export function verifyKey(keystring) {
 
 export function verifyAmount(sourceAmount,
   balance,
-  sourceSymbol,
+  sourceToken,
   sourceDecimal,
   rate, destDecimal, maxCap) {
   //verify number for source amount
@@ -40,7 +40,7 @@ export function verifyAmount(sourceAmount,
   //verify min source amount
   var rateBig = new BigNumber(rate)
   var estimateValue = sourceAmountWei
-  if (sourceSymbol !== "ETH") {
+  if (sourceToken !== constants.ETHER_ADDRESS) {
     estimateValue = rateBig.times(sourceAmountWei).div(Math.pow(10, sourceDecimal))
   }
   var epsilon = new BigNumber(constants.EPSILON)
@@ -52,7 +52,7 @@ export function verifyAmount(sourceAmount,
   //estimate value based on eth
   if (maxCap !== "infinity") {
     var maxCap = new BigNumber(maxCap)
-    if (sourceSymbol !== "ETH") {
+    if (sourceToken !== constants.ETHER_ADDRESS) {
       maxCap = maxCap.multipliedBy(constants.MAX_CAP_PERCENT)
     }
     if (estimateValue.isGreaterThan(maxCap)) {
@@ -74,7 +74,7 @@ export function verifyAmount(sourceAmount,
 }
 
 export function verifyBalanceForTransaction(
-  ethBalance, sourceSymbol, sourceAmount,
+  ethBalance, sourceToken, sourceAmount,
   gas, gasPrice
 ) {
 
@@ -87,7 +87,7 @@ export function verifyBalanceForTransaction(
   var txFee = gasPriceBig.times(1000000000).times(gas)
 
   var totalFee
-  if (sourceSymbol === "ETH") {
+  if (sourceToken === constants.ETHER_ADDRESS) {
     if (sourceAmount === "") sourceAmount = 0
     var value = new BigNumber(sourceAmount.toString())
     value = value.times(1000000000000000000)

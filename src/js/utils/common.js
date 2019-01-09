@@ -122,3 +122,16 @@ export function timeout(ms, promise) {
         promise.then(resolve, reject)
     })
 }
+
+
+export function getAddressFromSymbol(symbol, tokens){
+    var index = 0
+    var address = ""
+    Object.values(tokens).map(val => {
+        if (val.index >= index && val.symbol === symbol){
+            index = val.index
+            address = val.address
+        }
+    })
+    return address
+}

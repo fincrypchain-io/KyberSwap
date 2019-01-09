@@ -1,7 +1,7 @@
 import { REHYDRATE } from 'redux-persist/lib/constants'
 import Rate from "../services/rate"
 import * as BLOCKCHAIN_INFO from "../../../env"
-import constants from "../services/constants"
+import * as constants from "../services/constants"
 
 import * as converter from "../utils/converter"
 
@@ -11,27 +11,34 @@ function initState (tokens = BLOCKCHAIN_INFO.tokens) {
   //var timeNow = new Date()
   var timeStampNew = Math.floor(new Date().getTime() /1000) - 604800
 
-  Object.keys(tokens).forEach((key) => {
-    wrapperTokens[key] = {...tokens[key]}
+  tokens.map((val, index) => {
+    val.index = index
+    wrapperTokens[val.address] = {...val}
 
-    if(tokens[key].listing_time && tokens[key].listing_time > timeStampNew){            
-      wrapperTokens[key].isNew = true
+    if(val.listing_time && val.listing_time > timeStampNew){            
+      wrapperTokens[val.address].isNew = true
     }
-    // if(tokens[key].expireDate){            
-    //     var timeExpire = new Date(BLOCKCHAIN_INFO.tokens[key].expireDate)
-    //     var expireTimeStamp = timeExpire.getTime()
-    //     if (timeStampNow > expireTimeStamp) {
-    //         tokens[key].isNew = false
-    //     }
-    // }
 
-    wrapperTokens[key].rate = 0
-    wrapperTokens[key].minRate = 0
-    wrapperTokens[key].rateEth = 0
-    wrapperTokens[key].minRateEth = 0
-    wrapperTokens[key].balance = 0
-    wrapperTokens[key].rateUSD = 0
+    wrapperTokens[val.address].rate = 0
+    wrapperTokens[val.address].minRate = 0
+    wrapperTokens[val.address].rateEth = 0
+    wrapperTokens[val.address].minRateEth = 0
+    wrapperTokens[val.address].balance = 0
+    wrapperTokens[val.address].rateUSD = 0
   })
+  // Object.keys(tokens).forEach((key) => {
+  //   wrapperTokens[key] = {...tokens[key]}
+
+  //   if(tokens[key].listing_time && tokens[key].listing_time > timeStampNew){            
+  //     wrapperTokens[key].isNew = true
+  //   }
+  //   wrapperTokens[key].rate = 0
+  //   wrapperTokens[key].minRate = 0
+  //   wrapperTokens[key].rateEth = 0
+  //   wrapperTokens[key].minRateEth = 0
+  //   wrapperTokens[key].balance = 0
+  //   wrapperTokens[key].rateUSD = 0
+  // })
 
   return wrapperTokens
   // return {
@@ -88,6 +95,7 @@ const tokens = (state = {tokens: initState()}, action) => {
     case 'GLOBAL.ALL_RATE_UPDATED_FULFILLED': {
       var tokens = { ...state.tokens }
       var {rates, rateUSD} = action.payload
+      rateUSD = rateUSD.toString()
       console.log("mapToken")
       if (!rates){
         return state
@@ -96,14 +104,15 @@ const tokens = (state = {tokens: initState()}, action) => {
       var mapToken = {}
       rates.map(rate => {
         if (!tokens[rate.source] || !tokens[rate.dest]) return
-        if (rate.source !== "ETH") {
+        if (rate.source !== constants.ETHER_ADDRESS) {
           if (!mapToken[rate.source]) {
             mapToken[rate.source] = {}
           }
           mapToken[rate.source].rate = rate.rate          
           mapToken[rate.source].minRate = converter.getMinrate(rate.rate, rate.minRate)
 
-          mapToken[rate.source].rateUSD = converter.roundingNumber(converter.toT(rate.rate, 18)*rateUSD)
+          var rateByUSD = converter.roundingNumber(converter.toT(rate.rate, 18)*rateUSD.replace(",", ""))
+          mapToken[rate.source].rateUSD = rateByUSD.replace(",", "")
           //mapToken[rate.source].rateUSD = rateUSD
         } else {
           if (!mapToken[rate.dest]) {
@@ -128,7 +137,7 @@ const tokens = (state = {tokens: initState()}, action) => {
         }
         var token = tokens[key]
 
-        if (key === "ETH"){
+        if (key === constants.ETHER_ADDRESS){
           token.rateUSD = rateUSD
         }else{
           token.rateUSD = mapToken[key].rateUSD
@@ -153,7 +162,7 @@ const tokens = (state = {tokens: initState()}, action) => {
       var rateETHUSD = action.payload.rateETHUSD
 
       //push data
-      newTokens['ETH'].rateUSD = rateETHUSD
+      newTokens[constants.ETHER_ADDRESS].rateUSD = rateETHUSD
       return Object.assign({}, state, { tokens: newTokens })
     }
     case 'GLOBAL.SET_BALANCE_TOKEN':{

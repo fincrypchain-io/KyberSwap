@@ -87,7 +87,7 @@ export function calculateRate(source, dest) {
 }
 
 export function caculateEthBalance(token){
-  if(token.symbol.toLowerCase() == 'eth' || token.balance === "0"){
+  if(token.address.toLowerCase() == constants.ETHER_ADDRESS || token.balance === "0"){
     return token.balance
   } else {
     var rateBig = new BigNumber(token.rate)
@@ -302,6 +302,11 @@ export function biggestNumber() {
   return "0x" + (initNumber.pow(255).toString(16))
 }
 
+export function maskNumber() {
+  var initNumber = new BigNumber(2)
+  return "0x" + (initNumber.pow(255).toString(16))
+}
+
 export function biggestNumberDecimal() {
   var initNumber = new BigNumber(10)
   return initNumber.pow(30).toString(10)
@@ -398,9 +403,9 @@ export function toPrimitiveNumber(x) {
   return bigNum.toString(10)
 };
 
-export function caculateTokenEpsilon(rate, decimal, symbol) {
+export function caculateTokenEpsilon(rate, decimal, address) {
   var tokenRate = rate
-  if (symbol === "ETH") {
+  if (address === constants.ETHER_ADDRESS) {
     tokenRate = new BigNumber(10).pow(18)
   }
   var epsilon = new BigNumber(constants.EPSILON)
@@ -408,23 +413,23 @@ export function caculateTokenEpsilon(rate, decimal, symbol) {
   return ts.div(tokenRate)
 }
 
-export function getDifferentAmount(sourceAmount, prevAmount, sourceDecimal,
-  minRate, sourceTokenSymbol) {
-    if((sourceAmount === "") || isNaN(sourceAmount)) sourceAmount = 0
-    if(sourceTokenSymbol === 'ETH'){
-      return Math.abs(sourceAmount - prevAmount) 
-    }else{
-      var valueChange = Math.abs(sourceAmount - prevAmount) 
-      var rate = new BigNumber(minRate)
-      var rateWeight = new BigNumber(10).pow(18)
-      rate = rate.div(rateWeight)
+// export function getDifferentAmount(sourceAmount, prevAmount, sourceDecimal,
+//   minRate, sourceTokenSymbol) {
+//     if((sourceAmount === "") || isNaN(sourceAmount)) sourceAmount = 0
+//     if(sourceTokenSymbol === 'ETH'){
+//       return Math.abs(sourceAmount - prevAmount) 
+//     }else{
+//       var valueChange = Math.abs(sourceAmount - prevAmount) 
+//       var rate = new BigNumber(minRate)
+//       var rateWeight = new BigNumber(10).pow(18)
+//       rate = rate.div(rateWeight)
 
-      var value = new BigNumber(valueChange + "")
-      value = value.multipliedBy(rate)
+//       var value = new BigNumber(valueChange + "")
+//       value = value.multipliedBy(rate)
 
-      return value.toNumber()
-    }
-}
+//       return value.toNumber()
+//     }
+// }
 
 export function compareTwoNumber(num1, num2){
   var num1Big = new BigNumber(num1.toString())
@@ -566,11 +571,11 @@ export function getMinrate(rate, minRate){
 }
 
 
-export function calculateMinSource(sourceTokenSymbol, sourceAmount, decimal, rateSell){
+export function calculateMinSource(sourceToken, sourceAmount, decimal, rateSell){
   console.log({sourceAmount, decimal, rateSell})
   if ((sourceAmount === "") || isNaN(sourceAmount)) sourceAmount = 0
 
-  var minSourceAllow = new BigNumber(getSourceAmountZero(sourceTokenSymbol, decimal, rateSell))
+  var minSourceAllow = new BigNumber(getSourceAmountZero(sourceToken, decimal, rateSell))
 
   var sourceAmountBig = new BigNumber(sourceAmount.toString())
   sourceAmountBig = sourceAmountBig.times(Math.pow(10, decimal))
@@ -585,11 +590,11 @@ export function calculateMinSource(sourceTokenSymbol, sourceAmount, decimal, rat
 }
 
 
-export function getSourceAmountZero(sourceTokenSymbol, decimal, rateSell){
+export function getSourceAmountZero(sourceToken, decimal, rateSell){
   var epsilon = constants.EPSILON
   var minETHAllow = new BigNumber(epsilon.toString())
 
-  if (sourceTokenSymbol === "ETH"){
+  if (sourceToken === constants.ETHER_ADDRESS){
     return minETHAllow.toFixed(0)
   }
   var rate = new BigNumber(rateSell)
@@ -604,4 +609,12 @@ export function getSourceAmountZero(sourceTokenSymbol, decimal, rateSell){
 export function toHex(number){
   var bigNumber = new BigNumber(number)
   return "0x" + bigNumber.toString(16)
+}
+
+
+export function sumOfTwoNumber(num1, num2){
+  var num1 = new BigNumber(num1.toString())
+  var num2 = new BigNumber(num2.toString())
+  var sum = num1.plus(num2)       
+  return sum.toString()
 }

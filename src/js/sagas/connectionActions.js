@@ -17,12 +17,13 @@ import { getTranslate } from 'react-localize-redux'
 import NotiService from "../services/noti_service/noti_service"
 
 function filterTokens(tokens){
-  var newTokens = {}
+  var newTokens = []
   var now = Math.round(new Date().getTime()/1000)
   tokens.map(val => {
     if (val.listing_time > now) return
     if(val.delist_time && val.delist_time <= now) return
-    newTokens[val.address] = {...val}
+    newTokens.push(val)
+    //newTokens[val.address] = {...val}
   })
   return newTokens
 }
