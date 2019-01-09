@@ -22,7 +22,7 @@ function filterTokens(tokens){
   tokens.map(val => {
     if (val.listing_time > now) return
     if(val.delist_time && val.delist_time <= now) return
-    newTokens[val.symbol] = {...val}
+    newTokens[val.address] = {...val}
   })
   return newTokens
 }

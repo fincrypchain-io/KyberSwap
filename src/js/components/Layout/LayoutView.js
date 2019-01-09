@@ -16,7 +16,7 @@ import { store } from '../../store'
 function getAllPathToken(listToken){
   var tokens = []
   Object.keys(listToken).map(key => {
-    tokens.push(key)
+    tokens.push(listToken[key].symbol)
   })
 
   var path = "("

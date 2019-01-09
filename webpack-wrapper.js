@@ -134,7 +134,7 @@ async function getTokenApi(network) {
                 if (result.success) {
                     var tokens = {}
                     result.data.map(val => {
-                        tokens[val.symbol] = val
+                        tokens[val.address] = val
                     })
                     resolve(tokens)
                 }
