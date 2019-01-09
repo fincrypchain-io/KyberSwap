@@ -11,6 +11,7 @@ import { getTranslate } from 'react-localize-redux';
 import { getAssetUrl, isUserEurope, getParameterByName } from "../../utils/common";
 
 @connect((store, props) => {
+  var sourceToken = store.exchange.sourceToken
   var sourceTokenSymbol = store.exchange.sourceTokenSymbol
   var tokens = store.tokens.tokens
   var sourceBalance = 0
@@ -19,23 +20,24 @@ import { getAssetUrl, isUserEurope, getParameterByName } from "../../utils/commo
   var sourceIcon = "eth.svg"
 
   var rateSourceToEth = 0
-  if (tokens[sourceTokenSymbol]) {
-    sourceBalance = tokens[sourceTokenSymbol].balance
-    sourceDecimal = tokens[sourceTokenSymbol].decimals
-    sourceName = tokens[sourceTokenSymbol].name
+  if (tokens[sourceToken]) {
+    sourceBalance = tokens[sourceToken].balance
+    sourceDecimal = tokens[sourceToken].decimals
+    sourceName = tokens[sourceToken].name
     sourceIcon = sourceTokenSymbol + '.svg';
     rateSourceToEth = tokens[sourceTokenSymbol].rate
   }
 
   var destTokenSymbol = store.exchange.destTokenSymbol
+  var destToken = store.exchange.destToken
   var destBalance = 0
   var destDecimal = 18
   var destName = "Kybernetwork"
   var destIcon = "knc.svg"
-  if (tokens[destTokenSymbol]) {
-    destBalance = tokens[destTokenSymbol].balance
-    destDecimal = tokens[destTokenSymbol].decimals
-    destName = tokens[destTokenSymbol].name
+  if (tokens[destToken]) {
+    destBalance = tokens[destToken].balance
+    destDecimal = tokens[destToken].decimals
+    destName = tokens[destToken].name
     destIcon = destTokenSymbol + '.svg';
   }
 

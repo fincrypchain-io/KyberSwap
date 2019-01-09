@@ -9,6 +9,7 @@ import { TransactionLoading, Token, ChooseBalanceModal } from "../CommonElements
 import { TokenSelector, AccountBalance } from "../TransactionCommon"
 import * as validators from "../../utils/validators"
 import * as common from "../../utils/common"
+import * as constants from "../../services/constants"
 import { openTokenModal, hideSelectToken } from "../../actions/utilActions"
 import * as globalActions from "../../actions/globalActions"
 import * as exchangeActions from "../../actions/exchangeActions"
@@ -93,7 +94,7 @@ export default class ExchangeBody extends React.Component {
     if (this.props.account.account === false){
       return
     }
-    var validateWithFee = validators.verifyBalanceForTransaction(this.props.tokens['ETH'].balance, this.props.exchange.sourceTokenSymbol,
+    var validateWithFee = validators.verifyBalanceForTransaction(this.props.tokens[constants.ETHER_ADDRESS].balance, this.props.exchange.sourceTokenSymbol,
     this.props.exchange.sourceAmount, this.props.exchange.gas + this.props.exchange.gas_approve, gasPrice)
 
     if (validateWithFee) {
@@ -120,9 +121,9 @@ export default class ExchangeBody extends React.Component {
 
   dispatchUpdateRateExchange = (sourceValue) => {
     var sourceDecimal = 18
-    var sourceTokenSymbol = this.props.exchange.sourceTokenSymbol
+    var sourceToken = this.props.exchange.sourceToken
 
-    if (sourceTokenSymbol === "ETH") {
+    if (sourceToken === constants.ETHER_ADDRESS) {
       if (parseFloat(sourceValue) > 1000) {
         this.props.dispatch(exchangeActions.throwErrorHandleAmount())
         return
@@ -137,22 +138,22 @@ export default class ExchangeBody extends React.Component {
 
     //var minRate = 0
     var tokens = this.props.tokens
-    if (tokens[sourceTokenSymbol]) {
-      sourceDecimal = tokens[sourceTokenSymbol].decimals
+    if (tokens[sourceToken]) {
+      sourceDecimal = tokens[sourceToken].decimals
       //minRate = tokens[sourceTokenSymbol].minRate
     }
 
     var ethereum = this.props.ethereum
     var source = this.props.exchange.sourceToken
     var dest = this.props.exchange.destToken
-    var destTokenSymbol = this.props.exchange.destTokenSymbol
+    //var destToken = this.props.exchange.destToken
     //var sourceAmountHex = stringToHex(sourceValue, sourceDecimal)
     var rateInit = 0
-    if (sourceTokenSymbol === 'ETH' && destTokenSymbol !== 'ETH') {
-      rateInit = this.props.tokens[destTokenSymbol].minRateEth
+    if (source === constants.ETHER_ADDRESS && dest !== constants.ETHER_ADDRESS) {
+      rateInit = this.props.tokens[dest].minRateEth
     }
-    if (sourceTokenSymbol !== 'ETH' && destTokenSymbol === 'ETH') {
-      rateInit = this.props.tokens[sourceTokenSymbol].minRate
+    if (source !== constants.ETHER_ADDRESS && dest === constants.ETHER_ADDRESS) {
+      rateInit = this.props.tokens[source].minRate
     }
 
     this.props.dispatch(exchangeActions.updateRateExchange(ethereum, source, dest, sourceValue, sourceTokenSymbol, true, rateInit))
@@ -163,7 +164,7 @@ export default class ExchangeBody extends React.Component {
     var sourceAmount = value
     var validateAmount = validators.verifyAmount(sourceAmount,
       this.props.exchange.sourceBalance,
-      this.props.exchange.sourceTokenSymbol,
+      this.props.exchange.sourceToken,
       this.props.exchange.sourceDecimal,
       //this.props.exchange.offeredRate,
       this.props.exchange.rateSourceToEth,
@@ -198,7 +199,7 @@ export default class ExchangeBody extends React.Component {
       //check = false
     }
 
-    var validateWithFee = validators.verifyBalanceForTransaction(this.props.tokens['ETH'].balance, this.props.exchange.sourceTokenSymbol,
+    var validateWithFee = validators.verifyBalanceForTransaction(this.props.tokens[constants.ETHER_ADDRESS].balance, this.props.exchange.sourceToken,
       sourceAmount, this.props.exchange.gas + this.props.exchange.gas_approve, this.props.exchange.gasPrice)
 
     if (validateWithFee) {
@@ -260,11 +261,11 @@ export default class ExchangeBody extends React.Component {
   }  
 
   setAmount = () => {
-    var tokenSymbol = this.props.exchange.sourceTokenSymbol
+    var tokenSymbol = this.props.exchange.sourceToken
     var token = this.props.tokens[tokenSymbol]
     if (token) {
       var balanceBig = converters.stringToBigNumber(token.balance)
-      if (tokenSymbol === "ETH") {
+      if (tokenSymbol === constants.ETHER_ADDRESS) {
         var gasLimit = this.props.exchange.max_gas
         var gasPrice = converters.stringToBigNumber(converters.gweiToWei(this.props.exchange.gasPrice))
         var totalGas = gasPrice.multipliedBy(gasLimit)
@@ -430,10 +431,10 @@ export default class ExchangeBody extends React.Component {
     var isNotSupport = false
     Object.keys(this.props.tokens).map((key, i) => {
       isNotSupport = false
-      if (this.props.exchange.sourceTokenSymbol === key) {
+      if (this.props.exchange.sourceToken === key) {
         isNotSupport = true
       }
-      if (this.props.exchange.sourceTokenSymbol !== "ETH" && key !== "ETH") {
+      if (this.props.exchange.sourceToken !== constants.ETHER_ADDRESS && key !== constants.ETHER_ADDRESS) {
         isNotSupport = true
       }
       tokenDest[key] = { ...this.props.tokens[key], isNotSupport: isNotSupport }
