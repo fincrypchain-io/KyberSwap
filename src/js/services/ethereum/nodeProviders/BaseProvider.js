@@ -623,7 +623,7 @@ export default class BaseProvider {
         var mask = converters.maskNumber()
         var srcAmountEnableFistBit = converters.sumOfTwoNumber(srcAmount,  mask)
         srcAmountEnableFistBit = converters.toHex(srcAmountEnableFistBit)
-
+        
         var data = this.networkContract.methods.getExpectedRate(source, dest, srcAmountEnableFistBit).encodeABI()
 
         return new Promise((resolve, reject) => {
@@ -632,10 +632,13 @@ export default class BaseProvider {
                 data: data
             }, blockno)
                 .then(result => {
-                    //    console.log({source, dest, srcAmount, blockno})
-                    //     console.log("rate: " + result)
+                    //throw mean rate is 0
                     if (result === "0x") {
-                        reject(new Error("Cannot get rate"))
+                        //reject(new Error("Cannot get rate"))
+                        resolve({
+                            expectedPrice: "0",
+                            slippagePrice: "0"
+                        })
                         return
                     }
                     try {
