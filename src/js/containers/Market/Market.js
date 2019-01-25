@@ -175,6 +175,7 @@ export default class Market extends React.Component {
           base: 'reveal large confirm-modal market-modal',
           afterOpen: 'reveal large confirm-modal'
         }}
+        overlayClassName={"market-modal-scroll"}
           isOpen={this.state.modalState}
           onRequestClose={this.closeModal}
           contentLabel="Market modal"
